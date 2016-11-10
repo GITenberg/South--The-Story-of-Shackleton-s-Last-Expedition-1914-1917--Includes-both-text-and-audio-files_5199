@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: jh4wEVTaqHvx26E+5z5feTrrG+Zh6OFpURx3uI8XHXd/AOjEtq/vd7MqqhshlaAsCPqG1CDiiUVBo2DrGpgrpK2/flX7QOqmD6lA8gNanixtyYc1ul98k7IkFaNmaHEQqCjFRmQQC9ZJb4BYRfxjiYom/HdGYi8FF1LdzFx2Kx1ZjM+01u0buksvLf/rgKMfJRhDyReEU0krw2Q2SaovfptC5GCj/+Cp/mWKcqo0/JvducKVGWNiJTpnQyZSSXXBRb9N3AyHxSkKAcHbiT40F6A0KwnuRqGPSTeS3yqDKVvhGPg4CPtOxMrSAb/SeI62Ve9IxDY9ODbH9arG5yGnWQ8+PV1OsMHukI2Byk5K9uvhI86RxTrMGHimVMr2B59QZBMtq5SzFGHBtAqQysGyGk0jpbDyPsCPo2IlecCXW3gUFPM2YsC2A6XZBGE+JSPspbGseoTRbTR97Lhp1//6zSOu3yFhnzanBG8h7v245ff9iH754XpG6+ITVdz90VT4H3D9P0RTr8z7Ae6znj8+wfLxLLvKfJG8JGlU8eAK/qz7JjfdJoY9QJmpFOCAx8WQVnY26cqA+4LraUCV8NB+9R3NAnJZqEDm5CQ2Uj6WRYpn7wQm62KeEBotMeB76qyyuKPGketr36e65JmvGfmfMrfjkvfHOG8RCR1luPVfXA0=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/South--The-Story-of-Shackleton-s-Last-Expedition-1914-1917--Includes-both-text-and-audio-files_5199
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
